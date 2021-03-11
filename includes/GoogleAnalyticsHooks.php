@@ -36,7 +36,7 @@ class GoogleAnalyticsHooks {
 				', 'auto');
 				EOD
 				. ( $wgGoogleAnalyticsAnonymizeIP ? "  ga('set', 'anonymizeIp', true);\r\n" : "" ) . <<<EOD
-  				ga('send', 'pageview');
+					ga('send', 'pageview');
 				EOD;
 			, $skin->getOutput()->getCSP()->getNonce() );
 			$text .= "\r\n<script async src='https://www.google-analytics.com/analytics.js'></script>";
