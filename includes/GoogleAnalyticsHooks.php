@@ -28,25 +28,21 @@ class GoogleAnalyticsHooks {
 		$appended = false;
 
 		if ( $wgGoogleAnalyticsAccount !== '' ) {
-			$text .= <<<EOD
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+			$text .= Html::inlineScript( <<<EOD
+				(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+				})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-  ga('create', '
-EOD
-. $wgGoogleAnalyticsAccount . <<<EOD
-', 'auto');
-
-EOD
-. ( $wgGoogleAnalyticsAnonymizeIP ? "  ga('set', 'anonymizeIp', true);\r\n" : "" ) . <<<EOD
-  ga('send', 'pageview');
-
-</script>
-
-EOD;
+				ga('create', '
+				EOD
+				. $wgGoogleAnalyticsAccount . <<<EOD
+				', 'auto');
+				EOD
+				. ( $wgGoogleAnalyticsAnonymizeIP ? "  ga('set', 'anonymizeIp', true);\r\n" : "" ) . <<<EOD
+  				ga('send', 'pageview');
+				EOD;
+			, $skin->getOutput()->getCSP()->getNonce() );
 			$appended = true;
 		}
 
