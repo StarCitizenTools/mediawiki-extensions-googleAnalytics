@@ -10,17 +10,21 @@ class GoogleAnalyticsHooks {
 		global $wgGoogleAnalyticsAccount, $wgGoogleAnalyticsAnonymizeIP, $wgGoogleAnalyticsOtherCode,
 			   $wgGoogleAnalyticsIgnoreNsIDs, $wgGoogleAnalyticsIgnorePages, $wgGoogleAnalyticsIgnoreSpecials;
 
+		$title = $skin->getTitle();
+		$csp = $skin->getOutput()->getCSP();
+		$cspSrc = 'https://www.google-analytics.com';
+
 		if ( $skin->getUser()->isAllowed( 'noanalytics' ) ) {
 			$text .= "<!-- Web analytics code inclusion is disabled for this user. -->\r\n";
 			return true;
 		}
 
 		$ignoreSpecials = array_filter( $wgGoogleAnalyticsIgnoreSpecials, function ( $v ) use ( $skin ) {
-			return $skin->getTitle()->isSpecial( $v );
+			return $title->isSpecial( $v );
 		} );
 		if ( count( $ignoreSpecials ) > 0
-			|| in_array( $skin->getTitle()->getNamespace(), $wgGoogleAnalyticsIgnoreNsIDs, true )
-			|| in_array( $skin->getTitle()->getPrefixedText(), $wgGoogleAnalyticsIgnorePages, true ) ) {
+			|| in_array( $title->getNamespace(), $wgGoogleAnalyticsIgnoreNsIDs, true )
+			|| in_array( $title->getPrefixedText(), $wgGoogleAnalyticsIgnorePages, true ) ) {
 			$text .= "<!-- Web analytics code inclusion is disabled for this page. -->\r\n";
 			return true;
 		}
@@ -28,6 +32,11 @@ class GoogleAnalyticsHooks {
 		$appended = false;
 
 		if ( $wgGoogleAnalyticsAccount !== '' ) {
+			// Add CSP src
+			// Have to use default-src since MW does not support img and connect
+			$csp->addDefaultSrc( $cspSrc );
+			$csp->addScriptSrc( 'https://ssl.google-analytics.com' );
+			// Add inline script
 			$text .= Html::inlineScript( <<<EOD
 				window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 				ga('create', '
@@ -38,7 +47,7 @@ class GoogleAnalyticsHooks {
 				. ( $wgGoogleAnalyticsAnonymizeIP ? "  ga('set', 'anonymizeIp', true);\r\n" : "" ) . <<<EOD
 					ga('send', 'pageview');
 				EOD
-			, $skin->getOutput()->getCSP()->getNonce() );
+			, $csp->getNonce() );
 			$text .= "\r\n<script async src='https://www.google-analytics.com/analytics.js'></script>";
 			$appended = true;
 		}
