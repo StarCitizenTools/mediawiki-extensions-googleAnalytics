@@ -1,12 +1,20 @@
 <?php
 
-class GoogleAnalyticsHooks {
+declare( strict_types=1 );
+
+namespace MediaWiki\Extension\GoogleAnalytics\Hooks;
+
+use MediaWiki\Hook\SkinAfterBottomScriptsHook;
+use MediaWiki\Hook\UnitTestsListHook;
+
+class GoogleAnalyticsHooks implements SkinAfterBottomScriptsHook, UnitTestsListHook {
+
 	/**
 	 * @param Skin $skin
 	 * @param string &$text
 	 * @return bool
 	 */
-	public static function onSkinAfterBottomScripts( Skin $skin, &$text = '' ) {
+	public static function onSkinAfterBottomScripts( $skin, &$text ) {
 		global $wgGoogleAnalyticsAccount, $wgGoogleAnalyticsAnonymizeIP, $wgGoogleAnalyticsOtherCode,
 			   $wgGoogleAnalyticsIgnoreNsIDs, $wgGoogleAnalyticsIgnorePages, $wgGoogleAnalyticsIgnoreSpecials;
 

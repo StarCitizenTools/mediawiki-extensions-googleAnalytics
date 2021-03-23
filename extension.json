@@ -61,17 +61,19 @@
 	"ConfigRegistry": {
 		"GoogleAnalytics": "GlobalVarConfig::newInstance"
 	},
-	"AutoloadClasses": {
-		"GoogleAnalyticsHooks": "includes/GoogleAnalyticsHooks.php"
-	},
 	"MessagesDirs": {
 		"GoogleAnalytics": [
 			"i18n"
 		]
 	},
 	"Hooks": {
-		"SkinAfterBottomScripts": "GoogleAnalyticsHooks::onSkinAfterBottomScripts",
-		"UnitTestsList": "GoogleAnalyticsHooks::onUnitTestsList"
+		"SkinAfterBottomScripts": "ga",
+		"UnitTestsList": "ga"
+	},
+	"HookHandlers": {
+		"ga": {
+			"class": "MediaWiki\\Extension\\GoogleAnalytics\\Hooks\\GoogleAnalyticsHooks"
+		}
 	},
 	"manifest_version": 2
 }
