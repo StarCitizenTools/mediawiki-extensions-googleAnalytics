@@ -14,7 +14,7 @@ class GoogleAnalyticsHooks implements SkinAfterBottomScriptsHook, UnitTestsListH
 	 * @param string &$text
 	 * @return bool
 	 */
-	public static function onSkinAfterBottomScripts( $skin, &$text ) {
+	public function onSkinAfterBottomScripts( $skin, &$text ) {
 		global $wgGoogleAnalyticsAccount, $wgGoogleAnalyticsAnonymizeIP, $wgGoogleAnalyticsOtherCode,
 			   $wgGoogleAnalyticsIgnoreNsIDs, $wgGoogleAnalyticsIgnorePages, $wgGoogleAnalyticsIgnoreSpecials;
 
@@ -76,7 +76,7 @@ class GoogleAnalyticsHooks implements SkinAfterBottomScriptsHook, UnitTestsListH
 	 * @param string[] &$files
 	 * @return bool
 	 */
-	public static function onUnitTestsList( array &$files ) {
+	public function onUnitTestsList( array &$files ) {
 		// @codeCoverageIgnoreStart
 		$directoryIterator = new RecursiveDirectoryIterator( __DIR__ . '/tests/' );
 
