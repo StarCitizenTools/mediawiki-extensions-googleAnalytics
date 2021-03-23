@@ -19,7 +19,7 @@ class GoogleAnalyticsHooks {
 			return true;
 		}
 
-		$ignoreSpecials = array_filter( $wgGoogleAnalyticsIgnoreSpecials, function ( $v ) use ( $skin ) {
+		$ignoreSpecials = array_filter( $wgGoogleAnalyticsIgnoreSpecials, function ( $v ) use ( $title ) {
 			return $title->isSpecial( $v );
 		} );
 		if ( count( $ignoreSpecials ) > 0
