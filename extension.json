@@ -12,6 +12,9 @@
 	"requires": {
 		"MediaWiki": ">= 1.35.0"
 	},
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\GoogleAnalytics\\": "includes/"
+	},
 	"config_prefix": "wgGoogleAnalytics",
 	"config": {
 		"Account": {
