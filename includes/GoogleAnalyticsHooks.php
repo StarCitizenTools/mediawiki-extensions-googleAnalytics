@@ -1,38 +1,26 @@
 <?php
 
-declare( strict_types=1 );
-
-namespace MediaWiki\Extension\GoogleAnalytics\Hooks;
-
-use MediaWiki\Hook\SkinAfterBottomScriptsHook;
-use MediaWiki\Hook\UnitTestsListHook;
-
-class GoogleAnalyticsHooks implements SkinAfterBottomScriptsHook, UnitTestsListHook {
-
+class GoogleAnalyticsHooks {
 	/**
 	 * @param Skin $skin
 	 * @param string &$text
 	 * @return bool
 	 */
-	public function onSkinAfterBottomScripts( $skin, &$text ) {
+	public static function onSkinAfterBottomScripts( Skin $skin, &$text = '' ) {
 		global $wgGoogleAnalyticsAccount, $wgGoogleAnalyticsAnonymizeIP, $wgGoogleAnalyticsOtherCode,
 			   $wgGoogleAnalyticsIgnoreNsIDs, $wgGoogleAnalyticsIgnorePages, $wgGoogleAnalyticsIgnoreSpecials;
-
-		$title = $skin->getTitle();
-		$csp = $skin->getOutput()->getCSP();
-		$cspSrc = 'https://www.google-analytics.com';
 
 		if ( $skin->getUser()->isAllowed( 'noanalytics' ) ) {
 			$text .= "<!-- Web analytics code inclusion is disabled for this user. -->\r\n";
 			return true;
 		}
 
-		$ignoreSpecials = array_filter( $wgGoogleAnalyticsIgnoreSpecials, function ( $v ) use ( $title ) {
-			return $title->isSpecial( $v );
+		$ignoreSpecials = array_filter( $wgGoogleAnalyticsIgnoreSpecials, function ( $v ) use ( $skin ) {
+			return $skin->getTitle()->isSpecial( $v );
 		} );
 		if ( count( $ignoreSpecials ) > 0
-			|| in_array( $title->getNamespace(), $wgGoogleAnalyticsIgnoreNsIDs, true )
-			|| in_array( $title->getPrefixedText(), $wgGoogleAnalyticsIgnorePages, true ) ) {
+			|| in_array( $skin->getTitle()->getNamespace(), $wgGoogleAnalyticsIgnoreNsIDs, true )
+			|| in_array( $skin->getTitle()->getPrefixedText(), $wgGoogleAnalyticsIgnorePages, true ) ) {
 			$text .= "<!-- Web analytics code inclusion is disabled for this page. -->\r\n";
 			return true;
 		}
@@ -40,11 +28,6 @@ class GoogleAnalyticsHooks implements SkinAfterBottomScriptsHook, UnitTestsListH
 		$appended = false;
 
 		if ( $wgGoogleAnalyticsAccount !== '' ) {
-			// Add CSP src
-			// Have to use default-src since MW does not support img and connect
-			$csp->addDefaultSrc( $cspSrc );
-			$csp->addScriptSrc( 'https://ssl.google-analytics.com' );
-			// Add inline script
 			$text .= Html::inlineScript( <<<EOD
 				window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 				ga('create', '
@@ -55,7 +38,7 @@ class GoogleAnalyticsHooks implements SkinAfterBottomScriptsHook, UnitTestsListH
 				. ( $wgGoogleAnalyticsAnonymizeIP ? "  ga('set', 'anonymizeIp', true);\r\n" : "" ) . <<<EOD
 					ga('send', 'pageview');
 				EOD
-			, $csp->getNonce() );
+			, $skin->getOutput()->getCSP()->getNonce() );
 			$text .= "\r\n<script async src='https://www.google-analytics.com/analytics.js'></script>";
 			$appended = true;
 		}
@@ -70,5 +53,28 @@ class GoogleAnalyticsHooks implements SkinAfterBottomScriptsHook, UnitTestsListH
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param string[] &$files
+	 * @return bool
+	 */
+	public static function onUnitTestsList( array &$files ) {
+		// @codeCoverageIgnoreStart
+		$directoryIterator = new RecursiveDirectoryIterator( __DIR__ . '/tests/' );
+
+		/**
+		 * @var SplFileInfo $fileInfo
+		 */
+		$ourFiles = [];
+		foreach ( new RecursiveIteratorIterator( $directoryIterator ) as $fileInfo ) {
+			if ( substr( $fileInfo->getFilename(), -8 ) === 'Test.php' ) {
+				$ourFiles[] = $fileInfo->getPathname();
+			}
+		}
+
+		$files = array_merge( $files, $ourFiles );
+		return true;
+		// @codeCoverageIgnoreEnd
 	}
 }

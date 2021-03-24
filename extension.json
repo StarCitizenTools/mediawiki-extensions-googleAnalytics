@@ -12,9 +12,6 @@
 	"requires": {
 		"MediaWiki": ">= 1.35.0"
 	},
-	"AutoloadNamespaces": {
-		"MediaWiki\\Extension\\GoogleAnalytics\\": "includes/"
-	},
 	"config_prefix": "wgGoogleAnalytics",
 	"config": {
 		"Account": {
@@ -64,18 +61,17 @@
 	"ConfigRegistry": {
 		"GoogleAnalytics": "GlobalVarConfig::newInstance"
 	},
+	"AutoloadClasses": {
+		"GoogleAnalyticsHooks": "includes/GoogleAnalyticsHooks.php"
+	},
 	"MessagesDirs": {
 		"GoogleAnalytics": [
 			"i18n"
 		]
 	},
 	"Hooks": {
-		"SkinAfterBottomScripts": "ga"
-	},
-	"HookHandlers": {
-		"ga": {
-			"class": "MediaWiki\\Extension\\GoogleAnalytics\\Hooks\\GoogleAnalyticsHooks"
-		}
+		"SkinAfterBottomScripts": "GoogleAnalyticsHooks::onSkinAfterBottomScripts",
+		"UnitTestsList": "GoogleAnalyticsHooks::onUnitTestsList"
 	},
 	"manifest_version": 2
 }
